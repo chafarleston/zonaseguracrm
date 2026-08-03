@@ -106,6 +106,8 @@ class PropertyController extends Controller
         $property = Property::create([
             ...$request->all(),
             'user_id' => $request->user()->id,
+            'price' => (float) $request->price,
+            'area' => (float) $request->area,
             'coordinates' => $request->coordinates ?? ['lat' => 0, 'lng' => 0],
             'images' => $request->images ?? [],
             'features' => $request->features ?? [],
@@ -139,7 +141,11 @@ class PropertyController extends Controller
             return response()->json(['error' => 'Datos inválidos', 'details' => $validator->errors()], 400);
         }
 
-        $property->update($request->all());
+        $data = $request->all();
+        $data['price'] = (float) $request->price;
+        $data['area'] = (float) $request->area;
+        
+        $property->update($data);
 
         return response()->json(new PropertyResource($property));
     }

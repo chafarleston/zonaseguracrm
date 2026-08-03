@@ -102,21 +102,22 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
   const onSubmitForm = async () => {
     setIsSubmitting(true);
     try {
-      await onSubmit({
+      const formData = {
         title: watch('title'),
         description: watch('description'),
-        price: watch('price'),
+        price: Number(watch('price')),
         currency: watch('currency'),
         type: watch('type') as PropertyFormData['type'],
         status: watch('status') as PropertyFormData['status'],
-        bedrooms: watch('bedrooms'),
-        bathrooms: watch('bathrooms'),
-        area: watch('area'),
+        bedrooms: Number(watch('bedrooms')),
+        bathrooms: Number(watch('bathrooms')),
+        area: Number(watch('area')),
         address: watch('address'),
         coordinates,
         images,
         features,
-      });
+      };
+      await onSubmit(formData);
       toast.success(property ? 'Propiedad actualizada' : 'Propiedad creada');
       onClose();
     } catch (error) {
