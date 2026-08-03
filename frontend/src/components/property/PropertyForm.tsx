@@ -237,7 +237,8 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
                 <Input
                   id="price"
                   type="number"
-                  {...register('price')}
+                  step="any"
+                  {...register('price', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
                   placeholder="0"
                 />
                 {errors.price && <p className="text-sm text-red-500">{errors.price.message}</p>}

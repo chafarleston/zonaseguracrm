@@ -63,7 +63,7 @@ class PropertyController extends Controller
 
         if ($request->has('all') && $request->all === '1') {
             $properties = $query->get();
-            return response()->json($properties);
+            return response()->json(PropertyResource::collection($properties));
         }
 
         $properties = $query->paginate($request->get('per_page', 15));
