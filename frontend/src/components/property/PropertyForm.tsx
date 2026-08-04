@@ -219,7 +219,12 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleFormSubmit(onSubmitForm)} className="space-y-6">
+        <form
+          onSubmit={handleFormSubmit(onSubmitForm, () => {
+            toast.error('Revisa los campos obligatorios del formulario');
+          })}
+          className="space-y-6"
+        >
           <div className="space-y-4">
             <h3 className="font-semibold text-sm uppercase text-muted-foreground">
               Información Básica

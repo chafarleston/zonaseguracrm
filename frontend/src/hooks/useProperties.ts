@@ -21,6 +21,7 @@ export const useProperties = (params?: Record<string, string>) => {
   const createProperty = useMutation({
     mutationFn: (data: PropertyFormData) => propertyApi.create(data),
     onSuccess: (newProperty) => {
+      queryClient.invalidateQueries({ queryKey: PROPERTIES_KEY });
       queryClient.setQueryData<Property[]>(PROPERTIES_KEY, (old) => [...(old || []), newProperty]);
     },
     onError: (err: Error) => {
@@ -31,6 +32,7 @@ export const useProperties = (params?: Record<string, string>) => {
   const updateProperty = useMutation({
     mutationFn: ({ id, data }: { id: string; data: PropertyFormData }) => propertyApi.update(id, data),
     onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: PROPERTIES_KEY });
       queryClient.setQueryData<Property[]>(PROPERTIES_KEY, (old) =>
         old?.map(p => p.id === updated.id ? updated : p) || []
       );
@@ -43,6 +45,7 @@ export const useProperties = (params?: Record<string, string>) => {
   const deleteProperty = useMutation({
     mutationFn: (id: string) => propertyApi.delete(id),
     onSuccess: (_, deletedId) => {
+      queryClient.invalidateQueries({ queryKey: PROPERTIES_KEY });
       queryClient.setQueryData<Property[]>(PROPERTIES_KEY, (old) =>
         old?.filter(p => p.id !== deletedId) || []
       );
