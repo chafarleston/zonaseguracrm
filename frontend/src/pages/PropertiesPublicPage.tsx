@@ -6,7 +6,9 @@ import { useServices } from '@/hooks/useServices';
 import { PropertyMap } from '@/components/maps/PropertyMap';
 import { PropertyDetail } from '@/components/property/PropertyDetail';
 import { ContactDialog } from '@/components/contact/ContactDialog';
+import { ShareDialog } from '@/components/social/ShareDialog';
 import type { Property } from '@/types/property';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +58,32 @@ export function PropertiesPublicPage() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [priceRange, setPriceRange] = useState('all');
+  const [shareProperty, setShareProperty] = useState<Property | null>(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('zonasegura_favorites') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleFavorite = (propertyId: string) => {
+    setFavorites(prev => {
+      const isFavorite = prev.includes(propertyId);
+      const next = isFavorite
+        ? prev.filter(id => id !== propertyId)
+        : [...prev, propertyId];
+      localStorage.setItem('zonasegura_favorites', JSON.stringify(next));
+      toast.success(isFavorite ? 'Eliminado de favoritos' : 'Agregado a favoritos');
+      return next;
+    });
+  };
+
+  const handleShare = (property: Property) => {
+    setShareProperty(property);
+    setIsShareOpen(true);
+  };
 
   const filteredProperties = useMemo(() => {
     return (properties as Property[]).filter((property: Property) => {
@@ -295,19 +323,23 @@ export function PropertiesPublicPage() {
                       <Button
                         size="icon"
                         variant="secondary"
-                        className="h-8 w-8 bg-white/80 hover:bg-white"
+                        className={`h-8 w-8 ${favorites.includes(property.id) ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-white/80 hover:bg-white'}`}
+                        aria-label={favorites.includes(property.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                         onClick={(e) => {
                           e.stopPropagation();
+                          toggleFavorite(property.id);
                         }}
                       >
-                        <Heart className="h-4 w-4" />
+                        <Heart className={`h-4 w-4 ${favorites.includes(property.id) ? 'fill-current' : ''}`} />
                       </Button>
                       <Button
                         size="icon"
                         variant="secondary"
                         className="h-8 w-8 bg-white/80 hover:bg-white"
+                        aria-label="Compartir propiedad"
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleShare(property);
                         }}
                       >
                         <Share2 className="h-4 w-4" />
@@ -644,6 +676,15 @@ export function PropertiesPublicPage() {
       <ContactDialog
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}
+      />
+
+      <ShareDialog
+        property={shareProperty}
+        isOpen={isShareOpen}
+        onClose={() => {
+          setIsShareOpen(false);
+          setShareProperty(null);
+        }}
       />
     </div>
   );
