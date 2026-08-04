@@ -29,6 +29,21 @@ interface PropertyDetailProps {
   onClose: () => void;
 }
 
+function DetailItem({ icon: Icon, label, value }: { icon: any; label: string; value: React.ReactNode }) {
+  const hasValue = value !== null && value !== undefined && value !== '';
+  return (
+    <div className={`flex items-center gap-2 p-3 rounded-lg ${hasValue ? 'bg-green-50' : 'bg-gray-50'}`}>
+      <Icon className={`h-5 w-5 ${hasValue ? 'text-green-600' : 'text-gray-400'}`} />
+      <div>
+        <p className="text-xs text-green-600">{label}</p>
+        <p className={`font-semibold ${hasValue ? 'text-green-800' : 'text-gray-400'}`}>
+          {hasValue ? value : '—'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProps) {
   if (!property) return null;
 
@@ -81,104 +96,58 @@ export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProp
           </div>
 
           {/* Características del Terreno */}
-          {(property.terrainTotalArea !== null || property.terrainBuiltArea !== null || property.terrainFreeArea !== null || property.terrainMeasurements) && (
-            <div>
-              <h3 className="font-semibold text-green-800 mb-3">Características del Terreno</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {property.terrainTotalArea !== null && (
-                  <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                    <Map className="h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="text-xs text-green-600">Área Total de Terreno</p>
-                      <p className="font-semibold text-green-800">{property.terrainTotalArea} m²</p>
-                    </div>
-                  </div>
-                )}
-                {property.terrainBuiltArea !== null && (
-                  <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                    <Building className="h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="text-xs text-green-600">Área Construida</p>
-                      <p className="font-semibold text-green-800">{property.terrainBuiltArea} m²</p>
-                    </div>
-                  </div>
-                )}
-                {property.terrainFreeArea !== null && (
-                  <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                    <Sprout className="h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="text-xs text-green-600">Área Libre</p>
-                      <p className="font-semibold text-green-800">{property.terrainFreeArea} m²</p>
-                    </div>
-                  </div>
-                )}
-                {property.terrainMeasurements && (
-                  <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                    <Ruler className="h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="text-xs text-green-600">Medidas del Terreno</p>
-                      <p className="font-semibold text-green-800">{property.terrainMeasurements}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+          <div>
+            <h3 className="font-semibold text-green-800 mb-3">Características del Terreno</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <DetailItem
+                icon={Map}
+                label="Área Total de Terreno"
+                value={property.terrainTotalArea !== null ? `${property.terrainTotalArea} m²` : null}
+              />
+              <DetailItem
+                icon={Building}
+                label="Área Construida"
+                value={property.terrainBuiltArea !== null ? `${property.terrainBuiltArea} m²` : null}
+              />
+              <DetailItem
+                icon={Sprout}
+                label="Área Libre"
+                value={property.terrainFreeArea !== null ? `${property.terrainFreeArea} m²` : null}
+              />
+              <DetailItem
+                icon={Ruler}
+                label="Medidas del Terreno"
+                value={property.terrainMeasurements}
+              />
             </div>
-          )}
+          </div>
 
           {/* Características de la Propiedad */}
           <div>
             <h3 className="font-semibold text-green-800 mb-3">Características de la Propiedad</h3>
             <div className="grid grid-cols-2 gap-3">
-              {property.propertyAge !== null && (
-                <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                  <Clock className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="text-xs text-green-600">Antigüedad</p>
-                    <p className="font-semibold text-green-800">{property.propertyAge} años</p>
-                  </div>
-                </div>
-              )}
-              {property.propertyFloors !== null && (
-                <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                  <Layers className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="text-xs text-green-600">N° de Pisos</p>
-                    <p className="font-semibold text-green-800">{property.propertyFloors}</p>
-                  </div>
-                </div>
-              )}
-              <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                <BedDouble className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-xs text-green-600">Habitaciones</p>
-                  <p className="font-semibold text-green-800">{property.bedrooms}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                <Bath className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-xs text-green-600">Baños</p>
-                  <p className="font-semibold text-green-800">{property.bathrooms}</p>
-                </div>
-              </div>
-              {property.halfBathrooms > 0 && (
-                <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                  <Droplets className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="text-xs text-green-600">1/2 Baños</p>
-                    <p className="font-semibold text-green-800">{property.halfBathrooms}</p>
-                  </div>
-                </div>
-              )}
-              {property.parkingSpaces > 0 && (
-                <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
-                  <Car className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="text-xs text-green-600">Cochera</p>
-                    <p className="font-semibold text-green-800">{property.parkingSpaces} espacios</p>
-                  </div>
-                </div>
-              )}
+              <DetailItem
+                icon={Clock}
+                label="Antigüedad"
+                value={property.propertyAge !== null ? `${property.propertyAge} años` : null}
+              />
+              <DetailItem
+                icon={Layers}
+                label="N° de Pisos"
+                value={property.propertyFloors !== null ? property.propertyFloors : null}
+              />
+              <DetailItem icon={BedDouble} label="Habitaciones" value={property.bedrooms} />
+              <DetailItem icon={Bath} label="Baños" value={property.bathrooms} />
+              <DetailItem
+                icon={Droplets}
+                label="1/2 Baños"
+                value={property.halfBathrooms > 0 ? property.halfBathrooms : null}
+              />
+              <DetailItem
+                icon={Car}
+                label="Cochera"
+                value={property.parkingSpaces > 0 ? `${property.parkingSpaces} espacios` : null}
+              />
             </div>
 
             {/* Servicios */}
