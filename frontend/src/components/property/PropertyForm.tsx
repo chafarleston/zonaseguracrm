@@ -8,10 +8,27 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { LocationPicker } from '@/components/maps/LocationPicker';
-import { Plus, X } from 'lucide-react';
+import {
+  Plus,
+  X,
+  Ruler,
+  Map,
+  Sprout,
+  Layers,
+  Clock,
+  Building,
+  BedDouble,
+  Bath,
+  Droplets,
+  Car,
+  Waves,
+  Flame,
+  Zap,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 const propertySchema = z.object({
@@ -23,7 +40,15 @@ const propertySchema = z.object({
   status: z.string().min(1),
   bedrooms: z.coerce.number().min(0, 'Debe ser un número positivo'),
   bathrooms: z.coerce.number().min(0, 'Debe ser un número positivo'),
+  halfBathrooms: z.coerce.number().min(0).optional(),
+  parkingSpaces: z.coerce.number().min(0).optional(),
   area: z.coerce.number().min(0, 'Debe ser un número positivo'),
+  terrainTotalArea: z.coerce.number().min(0).optional(),
+  terrainBuiltArea: z.coerce.number().min(0).optional(),
+  terrainFreeArea: z.coerce.number().min(0).optional(),
+  terrainMeasurements: z.string().optional(),
+  propertyAge: z.coerce.number().min(0).optional(),
+  propertyFloors: z.coerce.number().min(0).optional(),
   address: z.string().min(1, 'La dirección es requerida'),
 });
 
@@ -65,7 +90,15 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
       status: 'venta',
       bedrooms: 1,
       bathrooms: 1,
+      halfBathrooms: 0,
+      parkingSpaces: 0,
       area: 0,
+      terrainTotalArea: 0,
+      terrainBuiltArea: 0,
+      terrainFreeArea: 0,
+      terrainMeasurements: '',
+      propertyAge: 0,
+      propertyFloors: 1,
       address: '',
     },
   });
@@ -73,6 +106,9 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
   const watchType = watch('type');
   const watchStatus = watch('status');
   const watchCurrency = watch('currency');
+  const [hasDrainage, setHasDrainage] = useState(false);
+  const [hasGas, setHasGas] = useState(false);
+  const [hasElectricity, setHasElectricity] = useState(false);
 
   useEffect(() => {
     if (property) {
@@ -85,14 +121,28 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
         status: property.status,
         bedrooms: property.bedrooms,
         bathrooms: property.bathrooms,
+        halfBathrooms: property.halfBathrooms,
+        parkingSpaces: property.parkingSpaces,
         area: property.area,
+        terrainTotalArea: property.terrainTotalArea ?? 0,
+        terrainBuiltArea: property.terrainBuiltArea ?? 0,
+        terrainFreeArea: property.terrainFreeArea ?? 0,
+        terrainMeasurements: property.terrainMeasurements || '',
+        propertyAge: property.propertyAge ?? 0,
+        propertyFloors: property.propertyFloors ?? 1,
         address: property.address,
       });
+      setHasDrainage(property.hasDrainage);
+      setHasGas(property.hasGas);
+      setHasElectricity(property.hasElectricity);
       setFeatures(property.features);
       setImages(property.images);
       setCoordinates(property.coordinates);
     } else {
       reset();
+      setHasDrainage(false);
+      setHasGas(false);
+      setHasElectricity(false);
       setFeatures([]);
       setImages([]);
       setCoordinates({ lat: 0, lng: 0 });
@@ -111,7 +161,18 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
         status: watch('status') as PropertyFormData['status'],
         bedrooms: Number(watch('bedrooms')),
         bathrooms: Number(watch('bathrooms')),
-        area: Number(watch('area')),
+        halfBathrooms: Number(watch('halfBathrooms') || 0),
+        parkingSpaces: Number(watch('parkingSpaces') || 0),
+        area: Number(watch('terrainTotalArea') || watch('area') || 0),
+        terrainTotalArea: watch('terrainTotalArea') ? Number(watch('terrainTotalArea')) : undefined,
+        terrainBuiltArea: watch('terrainBuiltArea') ? Number(watch('terrainBuiltArea')) : undefined,
+        terrainFreeArea: watch('terrainFreeArea') ? Number(watch('terrainFreeArea')) : undefined,
+        terrainMeasurements: watch('terrainMeasurements') || undefined,
+        propertyAge: watch('propertyAge') ? Number(watch('propertyAge')) : undefined,
+        propertyFloors: watch('propertyFloors') ? Number(watch('propertyFloors')) : undefined,
+        hasDrainage,
+        hasGas,
+        hasElectricity,
         address: watch('address'),
         coordinates,
         images,
@@ -265,14 +326,112 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
             </div>
           </div>
 
+          {/* Características del Terreno */}
           <div className="space-y-4">
             <h3 className="font-semibold text-sm uppercase text-muted-foreground">
-              Características
+              Características del Terreno
             </h3>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="bedrooms">Habitaciones *</Label>
+                <Label htmlFor="terrainTotalArea" className="flex items-center gap-2">
+                  <Map className="h-4 w-4 text-green-600" />
+                  Área Total de Terreno (m&sup2;)
+                </Label>
+                <Input
+                  id="terrainTotalArea"
+                  type="number"
+                  step="any"
+                  min={0}
+                  {...register('terrainTotalArea', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="terrainBuiltArea" className="flex items-center gap-2">
+                  <Building className="h-4 w-4 text-green-600" />
+                  Área Construida (m&sup2;)
+                </Label>
+                <Input
+                  id="terrainBuiltArea"
+                  type="number"
+                  step="any"
+                  min={0}
+                  {...register('terrainBuiltArea', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="terrainFreeArea" className="flex items-center gap-2">
+                  <Sprout className="h-4 w-4 text-green-600" />
+                  Área Libre (m&sup2;)
+                </Label>
+                <Input
+                  id="terrainFreeArea"
+                  type="number"
+                  step="any"
+                  min={0}
+                  {...register('terrainFreeArea', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="terrainMeasurements" className="flex items-center gap-2">
+                  <Ruler className="h-4 w-4 text-green-600" />
+                  Medidas del Terreno
+                </Label>
+                <Input
+                  id="terrainMeasurements"
+                  {...register('terrainMeasurements')}
+                  placeholder="Ej: 10m x 30m"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Características de la Propiedad */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm uppercase text-muted-foreground">
+              Características de la Propiedad
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="propertyAge" className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-green-600" />
+                  Antigüedad (años)
+                </Label>
+                <Input
+                  id="propertyAge"
+                  type="number"
+                  min={0}
+                  {...register('propertyAge', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="propertyFloors" className="flex items-center gap-2">
+                  <Layers className="h-4 w-4 text-green-600" />
+                  N&deg; de Pisos
+                </Label>
+                <Input
+                  id="propertyFloors"
+                  type="number"
+                  min={0}
+                  {...register('propertyFloors', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bedrooms" className="flex items-center gap-2">
+                  <BedDouble className="h-4 w-4 text-green-600" />
+                  Habitaciones *
+                </Label>
                 <Input
                   id="bedrooms"
                   type="number"
@@ -283,7 +442,10 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bathrooms">Baños *</Label>
+                <Label htmlFor="bathrooms" className="flex items-center gap-2">
+                  <Bath className="h-4 w-4 text-green-600" />
+                  Baños *
+                </Label>
                 <Input
                   id="bathrooms"
                   type="number"
@@ -294,14 +456,58 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="area">Área (m&sup2;) *</Label>
+                <Label htmlFor="halfBathrooms" className="flex items-center gap-2">
+                  <Droplets className="h-4 w-4 text-green-600" />
+                  1/2 Baños
+                </Label>
                 <Input
-                  id="area"
+                  id="halfBathrooms"
                   type="number"
                   min={0}
-                  {...register('area')}
+                  {...register('halfBathrooms', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
                 />
-                {errors.area && <p className="text-sm text-red-500">{errors.area.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="parkingSpaces" className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-green-600" />
+                  Cochera
+                </Label>
+                <Input
+                  id="parkingSpaces"
+                  type="number"
+                  min={0}
+                  {...register('parkingSpaces', { setValueAs: (v) => v === '' ? 0 : Number(v) })}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            {/* Servicios */}
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <Label htmlFor="hasDrainage" className="flex items-center gap-2 cursor-pointer">
+                  <Waves className="h-4 w-4 text-green-600" />
+                  Servicio de Drenaje
+                </Label>
+                <Switch id="hasDrainage" checked={hasDrainage} onCheckedChange={setHasDrainage} />
+              </div>
+
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <Label htmlFor="hasGas" className="flex items-center gap-2 cursor-pointer">
+                  <Flame className="h-4 w-4 text-green-600" />
+                  Servicio de Gas
+                </Label>
+                <Switch id="hasGas" checked={hasGas} onCheckedChange={setHasGas} />
+              </div>
+
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <Label htmlFor="hasElectricity" className="flex items-center gap-2 cursor-pointer">
+                  <Zap className="h-4 w-4 text-green-600" />
+                  Servicio de Luz
+                </Label>
+                <Switch id="hasElectricity" checked={hasElectricity} onCheckedChange={setHasElectricity} />
               </div>
             </div>
           </div>

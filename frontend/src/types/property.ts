@@ -11,7 +11,18 @@ export interface Property {
   status: 'venta' | 'alquiler' | 'reservado' | 'vendido';
   bedrooms: number;
   bathrooms: number;
+  halfBathrooms: number;
+  parkingSpaces: number;
   area: number;
+  terrainTotalArea: number | null;
+  terrainBuiltArea: number | null;
+  terrainFreeArea: number | null;
+  terrainMeasurements: string | null;
+  propertyAge: number | null;
+  propertyFloors: number | null;
+  hasDrainage: boolean;
+  hasGas: boolean;
+  hasElectricity: boolean;
   address: string;
   coordinates: {
     lat: number;
@@ -33,7 +44,18 @@ export interface PropertyFormData {
   status: 'venta' | 'alquiler' | 'reservado' | 'vendido';
   bedrooms: number;
   bathrooms: number;
+  halfBathrooms?: number;
+  parkingSpaces?: number;
   area: number;
+  terrainTotalArea?: number;
+  terrainBuiltArea?: number;
+  terrainFreeArea?: number;
+  terrainMeasurements?: string;
+  propertyAge?: number;
+  propertyFloors?: number;
+  hasDrainage?: boolean;
+  hasGas?: boolean;
+  hasElectricity?: boolean;
   address: string;
   coordinates: {
     lat: number;
