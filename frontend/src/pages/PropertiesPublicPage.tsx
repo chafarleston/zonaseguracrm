@@ -35,6 +35,11 @@ import {
   Heart,
   Share2,
   User,
+  Droplets,
+  Car,
+  Waves,
+  Flame,
+  Zap,
 } from 'lucide-react';
 
 const PROPERTY_TYPES = [
@@ -375,11 +380,44 @@ export function PropertiesPublicPage() {
                         <Bath className="h-4 w-4" />
                         <span>{property.bathrooms} baños</span>
                       </div>
+                      {property.halfBathrooms > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Droplets className="h-4 w-4" />
+                          <span>{property.halfBathrooms} 1/2</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-1">
                         <Maximize className="h-4 w-4" />
                         <span>{property.area} m²</span>
                       </div>
+                      {property.parkingSpaces > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Car className="h-4 w-4" />
+                          <span>{property.parkingSpaces}</span>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Services */}
+                    {(property.hasDrainage || property.hasGas || property.hasElectricity) && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {property.hasDrainage && (
+                          <Badge variant="outline" className="text-xs">
+                            <Waves className="h-3 w-3 mr-1" /> Drenaje
+                          </Badge>
+                        )}
+                        {property.hasGas && (
+                          <Badge variant="outline" className="text-xs">
+                            <Flame className="h-3 w-3 mr-1" /> Gas
+                          </Badge>
+                        )}
+                        {property.hasElectricity && (
+                          <Badge variant="outline" className="text-xs">
+                            <Zap className="h-3 w-3 mr-1" /> Luz
+                          </Badge>
+                        )}
+                      </div>
+                    )}
 
                     {/* Features Tags */}
                     {property.features && property.features.length > 0 && (
