@@ -89,18 +89,18 @@ class PropertyController extends Controller
             'status' => 'required|string|max:50',
             'bedrooms' => 'required|integer|min:0',
             'bathrooms' => 'required|integer|min:0',
-            'half_bathrooms' => 'nullable|integer|min:0',
-            'parking_spaces' => 'nullable|integer|min:0',
+            'halfBathrooms' => 'nullable|integer|min:0',
+            'parkingSpaces' => 'nullable|integer|min:0',
             'area' => 'required|numeric|min:0',
-            'terrain_total_area' => 'nullable|numeric|min:0',
-            'terrain_built_area' => 'nullable|numeric|min:0',
-            'terrain_free_area' => 'nullable|numeric|min:0',
-            'terrain_measurements' => 'nullable|string|max:100',
-            'property_age' => 'nullable|integer|min:0',
-            'property_floors' => 'nullable|integer|min:0',
-            'has_drainage' => 'nullable|boolean',
-            'has_gas' => 'nullable|boolean',
-            'has_electricity' => 'nullable|boolean',
+            'terrainTotalArea' => 'nullable|numeric|min:0',
+            'terrainBuiltArea' => 'nullable|numeric|min:0',
+            'terrainFreeArea' => 'nullable|numeric|min:0',
+            'terrainMeasurements' => 'nullable|string|max:100',
+            'propertyAge' => 'nullable|integer|min:0',
+            'propertyFloors' => 'nullable|integer|min:0',
+            'hasDrainage' => 'nullable|boolean',
+            'hasGas' => 'nullable|boolean',
+            'hasElectricity' => 'nullable|boolean',
             'address' => 'required|string|max:255',
             'coordinates' => 'required|array',
             'images' => 'nullable|array',
@@ -117,21 +117,22 @@ class PropertyController extends Controller
         $property = Property::create([
             ...$request->all(),
             'user_id' => $request->user()->id,
-            'price' => (float) $request->price,
-            'area' => (float) $request->area,
-            'terrain_total_area' => $request->terrain_total_area !== null ? (float) $request->terrain_total_area : null,
-            'terrain_built_area' => $request->terrain_built_area !== null ? (float) $request->terrain_built_area : null,
-            'terrain_free_area' => $request->terrain_free_area !== null ? (float) $request->terrain_free_area : null,
-            'half_bathrooms' => $request->half_bathrooms ?? 0,
-            'parking_spaces' => $request->parking_spaces ?? 0,
-            'property_age' => $request->property_age !== null ? (int) $request->property_age : null,
-            'property_floors' => $request->property_floors !== null ? (int) $request->property_floors : null,
-            'has_drainage' => $request->boolean('has_drainage'),
-            'has_gas' => $request->boolean('has_gas'),
-            'has_electricity' => $request->boolean('has_electricity'),
-            'coordinates' => $request->coordinates ?? ['lat' => 0, 'lng' => 0],
-            'images' => $request->images ?? [],
-            'features' => $request->features ?? [],
+            'price' => (float) $request->input('price', 0),
+            'area' => (float) $request->input('area', 0),
+            'terrain_total_area' => $request->input('terrainTotalArea') !== null ? (float) $request->input('terrainTotalArea') : null,
+            'terrain_built_area' => $request->input('terrainBuiltArea') !== null ? (float) $request->input('terrainBuiltArea') : null,
+            'terrain_free_area' => $request->input('terrainFreeArea') !== null ? (float) $request->input('terrainFreeArea') : null,
+            'terrain_measurements' => $request->input('terrainMeasurements'),
+            'half_bathrooms' => $request->input('halfBathrooms', 0),
+            'parking_spaces' => $request->input('parkingSpaces', 0),
+            'property_age' => $request->input('propertyAge') !== null ? (int) $request->input('propertyAge') : null,
+            'property_floors' => $request->input('propertyFloors') !== null ? (int) $request->input('propertyFloors') : null,
+            'has_drainage' => $request->boolean('hasDrainage'),
+            'has_gas' => $request->boolean('hasGas'),
+            'has_electricity' => $request->boolean('hasElectricity'),
+            'coordinates' => $request->input('coordinates') ?? ['lat' => 0, 'lng' => 0],
+            'images' => $request->input('images') ?? [],
+            'features' => $request->input('features') ?? [],
         ]);
 
         return response()->json(new PropertyResource($property), 201);
@@ -148,18 +149,18 @@ class PropertyController extends Controller
             'status' => 'required|string|max:50',
             'bedrooms' => 'required|integer|min:0',
             'bathrooms' => 'required|integer|min:0',
-            'half_bathrooms' => 'nullable|integer|min:0',
-            'parking_spaces' => 'nullable|integer|min:0',
+            'halfBathrooms' => 'nullable|integer|min:0',
+            'parkingSpaces' => 'nullable|integer|min:0',
             'area' => 'required|numeric|min:0',
-            'terrain_total_area' => 'nullable|numeric|min:0',
-            'terrain_built_area' => 'nullable|numeric|min:0',
-            'terrain_free_area' => 'nullable|numeric|min:0',
-            'terrain_measurements' => 'nullable|string|max:100',
-            'property_age' => 'nullable|integer|min:0',
-            'property_floors' => 'nullable|integer|min:0',
-            'has_drainage' => 'nullable|boolean',
-            'has_gas' => 'nullable|boolean',
-            'has_electricity' => 'nullable|boolean',
+            'terrainTotalArea' => 'nullable|numeric|min:0',
+            'terrainBuiltArea' => 'nullable|numeric|min:0',
+            'terrainFreeArea' => 'nullable|numeric|min:0',
+            'terrainMeasurements' => 'nullable|string|max:100',
+            'propertyAge' => 'nullable|integer|min:0',
+            'propertyFloors' => 'nullable|integer|min:0',
+            'hasDrainage' => 'nullable|boolean',
+            'hasGas' => 'nullable|boolean',
+            'hasElectricity' => 'nullable|boolean',
             'address' => 'required|string|max:255',
             'coordinates' => 'required|array',
             'images' => 'nullable|array',
@@ -174,18 +175,19 @@ class PropertyController extends Controller
         }
 
         $data = $request->all();
-        $data['price'] = (float) $request->price;
-        $data['area'] = (float) $request->area;
-        $data['terrain_total_area'] = $request->terrain_total_area !== null ? (float) $request->terrain_total_area : null;
-        $data['terrain_built_area'] = $request->terrain_built_area !== null ? (float) $request->terrain_built_area : null;
-        $data['terrain_free_area'] = $request->terrain_free_area !== null ? (float) $request->terrain_free_area : null;
-        $data['half_bathrooms'] = $request->half_bathrooms ?? 0;
-        $data['parking_spaces'] = $request->parking_spaces ?? 0;
-        $data['property_age'] = $request->property_age !== null ? (int) $request->property_age : null;
-        $data['property_floors'] = $request->property_floors !== null ? (int) $request->property_floors : null;
-        $data['has_drainage'] = $request->boolean('has_drainage');
-        $data['has_gas'] = $request->boolean('has_gas');
-        $data['has_electricity'] = $request->boolean('has_electricity');
+        $data['price'] = (float) $request->input('price', 0);
+        $data['area'] = (float) $request->input('area', 0);
+        $data['terrain_total_area'] = $request->input('terrainTotalArea') !== null ? (float) $request->input('terrainTotalArea') : null;
+        $data['terrain_built_area'] = $request->input('terrainBuiltArea') !== null ? (float) $request->input('terrainBuiltArea') : null;
+        $data['terrain_free_area'] = $request->input('terrainFreeArea') !== null ? (float) $request->input('terrainFreeArea') : null;
+        $data['terrain_measurements'] = $request->input('terrainMeasurements');
+        $data['half_bathrooms'] = $request->input('halfBathrooms', 0);
+        $data['parking_spaces'] = $request->input('parkingSpaces', 0);
+        $data['property_age'] = $request->input('propertyAge') !== null ? (int) $request->input('propertyAge') : null;
+        $data['property_floors'] = $request->input('propertyFloors') !== null ? (int) $request->input('propertyFloors') : null;
+        $data['has_drainage'] = $request->boolean('hasDrainage');
+        $data['has_gas'] = $request->boolean('hasGas');
+        $data['has_electricity'] = $request->boolean('hasElectricity');
         
         $property->update($data);
 
