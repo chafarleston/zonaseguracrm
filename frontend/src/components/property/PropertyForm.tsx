@@ -233,7 +233,7 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl w-[95vw] max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {property ? 'Editar Propiedad' : 'Nueva Propiedad'}
@@ -268,7 +268,8 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
                   id="description"
                   {...register('description')}
                   placeholder="Describe la propiedad..."
-                  rows={3}
+                  rows={8}
+                  className="min-h-[160px] resize-y"
                 />
                 {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
               </div>

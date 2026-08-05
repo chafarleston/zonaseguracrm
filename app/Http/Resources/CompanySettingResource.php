@@ -20,7 +20,7 @@ class CompanySettingResource extends JsonResource
             'country' => $this->country,
             'contactPerson' => $this->contact_person,
             'logoUrl' => $this->logo_url,
-            'logoFullUrl' => $this->logo_url ? asset('storage/' . $this->logo_url) : null,
+            'logoFullUrl' => $this->logo_url ? '/storage/' . $this->logo_url : null,
             'description' => $this->description,
             'footerText' => $this->footer_text,
         ];
