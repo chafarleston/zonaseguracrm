@@ -57,12 +57,46 @@ export function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'list'>('month');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['appointments'],
     queryFn: () => appointmentApi.getAll(),
   });
 
   const appointments: any[] = data?.data ?? [];
+
+  const safeDate = (value: string | undefined | null): Date | null => {
+    if (!value) return null;
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatDate = (value: string | undefined | null): string => {
+    const d = safeDate(value);
+    if (!d) return '';
+    return d.toISOString().split('T')[0];
+  };
+
+  const formatDateTime = (value: string | undefined | null): string => {
+    const d = safeDate(value);
+    if (!d) return 'Fecha no disponible';
+    return d.toLocaleDateString('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    }) + ' - ' + d.toLocaleTimeString('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const formatTime = (value: string | undefined | null): string => {
+    const d = safeDate(value);
+    if (!d) return '--:--';
+    return d.toLocaleTimeString('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -86,7 +120,8 @@ export function CalendarPage() {
   const appointmentsByDate = useMemo(() => {
     const map: Record<string, any[]> = {};
     appointments.forEach((apt) => {
-      const date = new Date(apt.startTime).toISOString().split('T')[0];
+      const date = formatDate(apt.startTime);
+      if (!date) return;
       if (!map[date]) map[date] = [];
       map[date].push(apt);
     });
@@ -98,9 +133,9 @@ export function CalendarPage() {
     : [];
 
   const todayAppointments = appointments.filter((apt) => {
-    const aptDate = new Date(apt.startTime);
+    const aptDate = safeDate(apt.startTime);
     const today = new Date();
-    return aptDate.toDateString() === today.toDateString();
+    return aptDate ? aptDate.toDateString() === today.toDateString() : false;
   });
 
   const goToPreviousMonth = () => {
@@ -120,6 +155,17 @@ export function CalendarPage() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-4">Error al cargar las citas. Intenta de nuevo.</p>
+        <Button onClick={() => refetch()} className="bg-green-600 hover:bg-green-700">
+          Reintentar
+        </Button>
       </div>
     );
   }
@@ -219,7 +265,7 @@ export function CalendarPage() {
             ) : (
               <div className="space-y-3">
                 {appointments
-                  .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+                  .sort((a, b) => (safeDate(a.startTime)?.getTime() || 0) - (safeDate(b.startTime)?.getTime() || 0))
                   .slice(0, 20)
                   .map((apt) => {
                     const TypeIcon = TYPE_ICONS[apt.type] || CalendarIcon;
@@ -231,14 +277,7 @@ export function CalendarPage() {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium">{apt.title}</p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(apt.startTime).toLocaleDateString('es-PE', {
-                              weekday: 'long',
-                              day: 'numeric',
-                              month: 'long',
-                            })} - {new Date(apt.startTime).toLocaleTimeString('es-PE', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
+                            {formatDateTime(apt.startTime)}
                           </p>
                           {apt.client && (
                             <p className="text-sm text-muted-foreground flex items-center gap-1">
@@ -286,13 +325,7 @@ export function CalendarPage() {
                       <div className="flex items-center gap-2">
                         <Clock className="h-3 w-3" />
                         <span>
-                          {new Date(apt.startTime).toLocaleTimeString('es-PE', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })} - {new Date(apt.endTime).toLocaleTimeString('es-PE', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
                         </span>
                       </div>
                       {apt.client && (
