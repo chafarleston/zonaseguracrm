@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Property, PropertyFormData } from '@/types/property';
+import type { PropertyFormData } from '@/types/property';
 import { propertyApi } from '@/services/api';
 import { toast } from 'sonner';
 
@@ -20,9 +20,8 @@ export const useProperties = (params?: Record<string, string>) => {
 
   const createProperty = useMutation({
     mutationFn: (data: PropertyFormData) => propertyApi.create(data),
-    onSuccess: (newProperty) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROPERTIES_KEY });
-      queryClient.setQueryData<Property[]>(PROPERTIES_KEY, (old) => [...(old || []), newProperty]);
     },
     onError: (err: Error) => {
       toast.error(err.message);
@@ -31,11 +30,8 @@ export const useProperties = (params?: Record<string, string>) => {
 
   const updateProperty = useMutation({
     mutationFn: ({ id, data }: { id: string; data: PropertyFormData }) => propertyApi.update(id, data),
-    onSuccess: (updated) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROPERTIES_KEY });
-      queryClient.setQueryData<Property[]>(PROPERTIES_KEY, (old) =>
-        old?.map(p => p.id === updated.id ? updated : p) || []
-      );
     },
     onError: (err: Error) => {
       toast.error(err.message);
@@ -44,11 +40,8 @@ export const useProperties = (params?: Record<string, string>) => {
 
   const deleteProperty = useMutation({
     mutationFn: (id: string) => propertyApi.delete(id),
-    onSuccess: (_, deletedId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROPERTIES_KEY });
-      queryClient.setQueryData<Property[]>(PROPERTIES_KEY, (old) =>
-        old?.filter(p => p.id !== deletedId) || []
-      );
     },
     onError: (err: Error) => {
       toast.error(err.message);

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Property, PropertyFormData } from '@/types/property';
+import { propertyApi } from '@/services/api';
 import { PROPERTY_TYPES, PROPERTY_STATUS, CURRENCIES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,8 @@ import {
   Waves,
   Flame,
   Zap,
+  Upload,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -66,6 +69,7 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
   const [newImage, setNewImage] = useState('');
   const [features, setFeatures] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number }>({ lat: 0, lng: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -208,6 +212,23 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUploadImages = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      for (const file of Array.from(files)) {
+        const result = await propertyApi.uploadImage(file);
+        setImages(prev => [...prev, result.url]);
+      }
+      toast.success('Imágenes subidas correctamente');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al subir imágenes');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -546,14 +567,55 @@ export function PropertyForm({ property, isOpen, onClose, onSubmit }: PropertyFo
               Imágenes
             </h3>
 
-            <div className="flex gap-2">
-              <Input
-                value={newImage}
-                onChange={e => setNewImage(e.target.value)}
-                placeholder="URL de la imagen"
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addImage())}
-              />
-              <Button type="button" onClick={addImage} variant="outline" aria-label="Agregar imagen">
+            {/* Subir archivos */}
+            <div>
+              <Label>Subir fotos desde tu computadora</Label>
+              <div className="mt-2 flex items-center gap-3">
+                <label
+                  className={`flex-1 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors ${
+                    isUploading ? 'opacity-60 pointer-events-none' : ''
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleUploadImages(e.target.files)}
+                    disabled={isUploading}
+                  />
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-6 w-6 mx-auto text-green-600 animate-spin mb-1" />
+                      <p className="text-sm text-muted-foreground">Subiendo imágenes...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                      <p className="text-sm text-muted-foreground">
+                        Haz clic para seleccionar o arrastra fotos aquí
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        JPG, PNG, WebP · máx. 5MB cada una
+                      </p>
+                    </>
+                  )}
+                </label>
+              </div>
+            </div>
+
+            {/* O agregar por URL */}
+            <div className="flex gap-2 items-end">
+              <div className="flex-1 space-y-1">
+                <Label>O agrega por URL</Label>
+                <Input
+                  value={newImage}
+                  onChange={e => setNewImage(e.target.value)}
+                  placeholder="URL de la imagen"
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addImage())}
+                />
+              </div>
+              <Button type="button" onClick={addImage} variant="outline" aria-label="Agregar imagen por URL">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>

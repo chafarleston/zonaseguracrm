@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/services/{service}/image', [ServiceController::class, 'uploadImage'])->middleware('admin');
     // Properties (write)
     Route::post('/properties', [PropertyController::class, 'store']);
+    Route::post('/properties/upload-image', [PropertyController::class, 'uploadImage']);
     Route::put('/properties/{property}', [PropertyController::class, 'update']);
     Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->middleware('admin');
 

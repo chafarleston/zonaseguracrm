@@ -73,6 +73,27 @@ export const propertyApi = {
   delete: async (id: string): Promise<void> => {
     return request<void>(`/properties/${id}`, { method: 'DELETE' });
   },
+
+  uploadImage: async (file: File): Promise<{ url: string; path: string }> => {
+    const token = localStorage.getItem('zonasegura_token');
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_URL}/properties/upload-image`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+      throw new Error(error.error || `Error ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
 
 export interface Client {

@@ -194,6 +194,24 @@ class PropertyController extends Controller
         return response()->json(new PropertyResource($property));
     }
 
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Archivo inválido', 'details' => $validator->errors()], 400);
+        }
+
+        $path = $request->file('image')->store('properties', 'public');
+
+        return response()->json([
+            'url' => '/storage/' . $path,
+            'path' => $path,
+        ], 201);
+    }
+
     public function destroy(Property $property): JsonResponse
     {
         $property->delete();
