@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ImageGallery } from '@/components/property/ImageGallery';
 import { PropertyMap } from '@/components/maps/PropertyMap';
+import { useSettings } from '@/hooks/useSettings';
 import {
   Mail,
   Map,
@@ -45,7 +46,10 @@ function DetailItem({ icon: Icon, label, value }: { icon: any; label: string; va
 }
 
 export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProps) {
+  const { settings } = useSettings();
   if (!property) return null;
+
+  const contactEmail = settings?.email || 'contacto@zonasegura.com.pe';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -208,7 +212,7 @@ export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProp
 
           <div className="pt-4 border-t border-green-200">
             <Button
-              onClick={() => window.open('mailto:rcharles84@gmail.com?subject=Consulta%20sobre%20propiedad%20en%20Zona%20Segura', '_blank')}
+              onClick={() => window.open(`mailto:${contactEmail}?subject=${encodeURIComponent('Consulta sobre propiedad en Zona Segura')}`, '_blank')}
               className="w-full bg-green-600 hover:bg-green-700 gap-2"
             >
               <Mail className="h-4 w-4" />
