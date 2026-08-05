@@ -212,7 +212,21 @@ export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProp
 
           <div className="pt-4 border-t border-green-200">
             <Button
-              onClick={() => window.open(`mailto:${contactEmail}?subject=${encodeURIComponent('Consulta sobre propiedad en Zona Segura')}`, '_blank')}
+              onClick={() => {
+                const subject = property.title;
+                const body = [
+                  `Hola, me interesa la propiedad: "${property.title}".`,
+                  '',
+                  `Dirección: ${property.address}`,
+                  `Precio: ${property.currency} ${property.price.toLocaleString()}`,
+                  '',
+                  'Quedo atento a su respuesta. Gracias.',
+                ].join('\n');
+                window.open(
+                  `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+                  '_blank'
+                );
+              }}
               className="w-full bg-green-600 hover:bg-green-700 gap-2"
             >
               <Mail className="h-4 w-4" />
