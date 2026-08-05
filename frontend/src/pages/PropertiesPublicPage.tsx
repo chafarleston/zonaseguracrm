@@ -73,6 +73,8 @@ export function PropertiesPublicPage() {
     }
   });
 
+  const logoUrl = settings?.logoUrl ? `/storage/${settings.logoUrl}` : settings?.logoFullUrl || null;
+
   const toggleFavorite = (propertyId: string) => {
     setFavorites(prev => {
       const isFavorite = prev.includes(propertyId);
@@ -146,10 +148,10 @@ export function PropertiesPublicPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {settings?.logoFullUrl ? (
+              {logoUrl ? (
                 <img
-                  src={`${settings.logoFullUrl}?v=${Date.now()}`}
-                  alt={settings.companyName || 'Logo'}
+                  src={`${logoUrl}?v=${Date.now()}`}
+                  alt={settings?.companyName || 'Logo'}
                   className="h-12 w-auto object-contain"
                 />
               ) : (
@@ -614,10 +616,10 @@ export function PropertiesPublicPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                {settings?.logoFullUrl ? (
+                {logoUrl ? (
                   <img
-                    src={`${settings.logoFullUrl}?v=${Date.now()}`}
-                    alt={settings.companyName || 'Logo'}
+                    src={`${logoUrl}?v=${Date.now()}`}
+                    alt={settings?.companyName || 'Logo'}
                     className="h-10 w-auto object-contain"
                   />
                 ) : (
