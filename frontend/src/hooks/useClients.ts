@@ -13,7 +13,7 @@ export function useClients(params?: Record<string, string>) {
     error,
     refetch,
   } = useQuery({
-    queryKey: [CLIENTS_KEY, params],
+    queryKey: params ? [CLIENTS_KEY, params] : CLIENTS_KEY,
     queryFn: () => clientApi.getAll(params),
   });
 

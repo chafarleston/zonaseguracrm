@@ -13,7 +13,7 @@ export function useTasks(params?: Record<string, string>) {
     error,
     refetch,
   } = useQuery({
-    queryKey: [TASKS_KEY, params],
+    queryKey: params ? [TASKS_KEY, params] : TASKS_KEY,
     queryFn: () => taskApi.getAll(params),
   });
 

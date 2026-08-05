@@ -14,7 +14,7 @@ export function useDeals(params?: Record<string, string>) {
     error,
     refetch,
   } = useQuery({
-    queryKey: [DEALS_KEY, params],
+    queryKey: params ? [DEALS_KEY, params] : DEALS_KEY,
     queryFn: () => dealApi.getAll(params),
   });
 

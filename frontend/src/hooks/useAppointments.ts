@@ -14,7 +14,7 @@ export function useAppointments(params?: Record<string, string>) {
     error,
     refetch,
   } = useQuery({
-    queryKey: [APPOINTMENTS_KEY, params],
+    queryKey: params ? [APPOINTMENTS_KEY, params] : APPOINTMENTS_KEY,
     queryFn: () => appointmentApi.getAll(params),
   });
 
@@ -104,7 +104,7 @@ export function useCalendar(params?: Record<string, string>) {
     error,
     refetch,
   } = useQuery({
-    queryKey: [CALENDAR_KEY, params],
+    queryKey: params ? [CALENDAR_KEY, params] : CALENDAR_KEY,
     queryFn: () => appointmentApi.getCalendar(params),
   });
 
