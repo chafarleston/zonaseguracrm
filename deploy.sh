@@ -11,6 +11,7 @@ PROJECT_DIR="/var/www/zonaseguracrm"
 BRANCH="main"                # Rama para git pull (si usas git)
 SKIP_FRONTEND="no"           # "yes" si ya subiste el build manualmente
 SKIP_MIGRATE="no"            # "yes" si no quieres correr migraciones
+RUN_SEEDERS="no"             # "yes" SOLO si necesitas (re)sembrar servicios/config inicial
 
 # ---------- Colores ----------
 RED='\033[0;31m'
@@ -91,10 +92,14 @@ else
     echo -e "${YELLOW}[6/9] Migraciones omitidas (SKIP_MIGRATE=yes).${NC}"
 fi
 
-# ---------- 7. Seeders (idempotentes) ----------
-echo -e "${YELLOW}[7/9] Ejecutando seeders...${NC}"
-php artisan db:seed --class=ServiceSeeder --force || true
-php artisan db:seed --class=CompanySettingSeeder --force || true
+# ---------- 7. Seeders (SOLO si RUN_SEEDERS=yes) ----------
+if [ "$RUN_SEEDERS" = "yes" ]; then
+    echo -e "${YELLOW}[7/9] Ejecutando seeders...${NC}"
+    php artisan db:seed --class=ServiceSeeder --force || true
+    php artisan db:seed --class=CompanySettingSeeder --force || true
+else
+    echo -e "${YELLOW}[7/9] Seeders omitidos (RUN_SEEDERS=no). Los datos existentes no se modifican.${NC}"
+fi
 
 # ---------- 8. Enlace de storage y caché ----------
 echo -e "${YELLOW}[8/9] Configurando storage y caché...${NC}"
