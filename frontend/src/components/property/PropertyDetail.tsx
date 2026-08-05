@@ -66,32 +66,19 @@ export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProp
             />
           </div>
 
-          <div className="flex justify-between items-center bg-green-50 p-4 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-green-50 p-4 rounded-lg">
             <div>
               <p className="text-3xl font-bold text-green-700">
                 {property.currency} {property.price.toLocaleString()}
               </p>
-              <p className="text-green-600">{TYPE_LABELS[property.type] || property.type}</p>
-            </div>
-            <div className="text-right">
-              <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${STATUS_BADGE_COLORS[property.status] || ''}`}>
-                {STATUS_LABELS[property.status] || property.status}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 py-4 border-y border-green-200">
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-green-700">{property.bedrooms}</p>
-              <p className="text-sm text-green-600">Habitaciones</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-green-700">{property.bathrooms}</p>
-              <p className="text-sm text-green-600">Baños</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-semibold text-green-700">{property.area}m&sup2;</p>
-              <p className="text-sm text-green-600">Área</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-white text-green-700 capitalize">
+                  {TYPE_LABELS[property.type] || property.type}
+                </span>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${STATUS_BADGE_COLORS[property.status] || 'bg-white text-green-700'}`}>
+                  {STATUS_LABELS[property.status] || property.status}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -190,7 +177,7 @@ export function PropertyDetail({ property, isOpen, onClose }: PropertyDetailProp
 
           <div>
             <h3 className="font-semibold text-green-800 mb-2">Descripción</h3>
-            <p className="text-green-700">{property.description}</p>
+            <p className="text-green-700 whitespace-pre-line">{property.description}</p>
           </div>
 
           {property.features.length > 0 && (
