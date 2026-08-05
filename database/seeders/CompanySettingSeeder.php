@@ -9,7 +9,9 @@ class CompanySettingSeeder extends Seeder
 {
     public function run(): void
     {
-        CompanySetting::updateOrCreate(
+        // Solo crea el registro si no existe. NO sobrescribe los datos
+        // que el usuario haya modificado en /admin/settings.
+        CompanySetting::firstOrCreate(
             ['id' => 1],
             [
                 'company_name' => 'Real Compurter SAC',
@@ -20,7 +22,6 @@ class CompanySettingSeeder extends Seeder
                 'city' => 'Piura',
                 'country' => 'Peru',
                 'contact_person' => 'Miguel Angel Requena Palomino',
-                'logo_url' => '/images/logo.jpg',
                 'description' => 'Tu asesoría inmobiliaria de confianza. Saneamiento físico legal, compra, venta y alquiler de propiedades.',
                 'footer_text' => 'Real Compurter SAC Tel 927530091. Todos los derechos reservados.',
             ]
