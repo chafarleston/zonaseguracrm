@@ -1,0 +1,60 @@
+# LISTA DE ARCHIVOS A SUBIR A PRODUCCIÓN
+# ========================================
+# Si NO usas git, sube estos archivos/carpetas al servidor
+# manteniendo la misma estructura de carpetas.
+# Luego ejecuta: bash deploy.sh
+# ========================================
+
+## BACKEND (app/)
+app/Http/Controllers/Api/PropertyController.php
+app/Http/Controllers/Api/CompanySettingController.php
+app/Http/Controllers/Api/ServiceController.php
+app/Http/Controllers/Api/AppointmentController.php
+app/Http/Controllers/Api/ClientController.php
+app/Http/Controllers/Api/DashboardController.php
+app/Http/Controllers/Api/DealController.php
+app/Http/Controllers/Api/DocumentController.php
+app/Http/Controllers/Api/ReportController.php
+app/Http/Controllers/Api/TaskController.php
+app/Http/Controllers/Api/UserController.php
+
+app/Http/Resources/ (todo)
+app/Models/ (todo)
+
+## MIGRACIONES (obligatorio)
+database/migrations/2026_06_07_000001_add_crm_fields_to_users_table.php
+database/migrations/2026_06_07_000002_add_agent_to_properties_table.php
+database/migrations/2026_06_07_000003_create_clients_table.php
+database/migrations/2026_06_07_000004_create_deals_table.php
+database/migrations/2026_06_07_000005_create_appointments_table.php
+database/migrations/2026_06_07_000006_create_tasks_table.php
+database/migrations/2026_06_07_000007_create_documents_table.php
+database/migrations/2026_06_07_000008_create_activities_table.php
+database/migrations/2026_06_07_000009_add_soft_deletes_to_users_table.php
+database/migrations/2026_06_07_000010_add_soft_deletes_to_properties_table.php
+database/migrations/2026_06_08_000001_create_company_settings_table.php
+database/migrations/2026_06_08_000002_create_services_table.php
+database/migrations/2026_06_09_000001_add_property_details_to_properties_table.php
+
+## SEEDERS
+database/seeders/ServiceSeeder.php
+database/seeders/CompanySettingSeeder.php
+database/seeders/DatabaseSeeder.php (opcional, si reinicias BD)
+
+## RUTAS
+routes/api.php
+routes/web.php
+
+## CONFIG
+config/cors.php
+
+## FRONTEND
+frontend/  (carpeta completa - el deploy.sh la compila)
+
+## SCRIPT
+deploy.sh
+
+# ========================================
+# Luego en el servidor:
+#   bash deploy.sh
+# ========================================
