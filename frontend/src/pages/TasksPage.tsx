@@ -98,6 +98,7 @@ export function TasksPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -136,9 +137,14 @@ export function TasksPage() {
     await startTask(id);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Eliminar esta tarea?')) {
-      await deleteTask(id);
+  const handleDelete = (id: string) => {
+    setDeleteTaskId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteTaskId) {
+      await deleteTask(deleteTaskId);
+      setDeleteTaskId(null);
     }
   };
 
@@ -410,6 +416,30 @@ export function TasksPage() {
             </Button>
             <Button onClick={handleCreate} className="bg-green-600 hover:bg-green-700">
               Crear Tarea
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmación de eliminación */}
+      <Dialog open={!!deleteTaskId} onOpenChange={(open) => !open && setDeleteTaskId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              Eliminar tarea
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground">
+            ¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTaskId(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Eliminar
             </Button>
           </DialogFooter>
         </DialogContent>
