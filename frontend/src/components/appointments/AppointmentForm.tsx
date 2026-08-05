@@ -62,7 +62,7 @@ export function AppointmentForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     clientId: '',
-    propertyId: '',
+    propertyId: 'none',
     title: '',
     description: '',
     startTime: '',
@@ -85,7 +85,7 @@ export function AppointmentForm({
       const end = new Date(defaultTime.getTime() + 60 * 60000);
       setFormData({
         clientId: '',
-        propertyId: '',
+        propertyId: 'none',
         title: '',
         description: '',
         startTime: iso(start),
@@ -120,7 +120,7 @@ export function AppointmentForm({
     try {
       await onSubmit({
         clientId: formData.clientId,
-        propertyId: formData.propertyId || undefined,
+        propertyId: formData.propertyId && formData.propertyId !== 'none' ? formData.propertyId : undefined,
         title: formData.title,
         description: formData.description || undefined,
         startTime: formData.startTime,
@@ -179,7 +179,7 @@ export function AppointmentForm({
                 <SelectValue placeholder="Selecciona una propiedad (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Sin propiedad</SelectItem>
+                <SelectItem value="none">Sin propiedad</SelectItem>
                 {properties.map((property) => (
                   <SelectItem key={property.id} value={property.id}>
                     {property.title}
