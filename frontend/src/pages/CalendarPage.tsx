@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { appointmentApi, taskApi } from '@/services/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { appointmentApi, taskApi, clientApi, propertyApi } from '@/services/api';
+import { AppointmentForm } from '@/components/appointments/AppointmentForm';
+import type { AppointmentFormDataInput } from '@/components/appointments/AppointmentForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +23,9 @@ import {
   Phone,
   Calendar as CalendarIcon,
   CheckCircle2,
+  Plus,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const MONTHS = [
@@ -54,9 +58,12 @@ const TYPE_ICONS: Record<string, typeof CalendarIcon> = {
 };
 
 export function CalendarPage() {
+  const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'month' | 'list'>('month');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formDefaultDate, setFormDefaultDate] = useState<Date | null>(null);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['appointments'],
@@ -68,8 +75,37 @@ export function CalendarPage() {
     queryFn: () => taskApi.getAll(),
   });
 
+  const clientsQuery = useQuery({
+    queryKey: ['clients'],
+    queryFn: () => clientApi.getAll(),
+  });
+
+  const propertiesQuery = useQuery({
+    queryKey: ['properties'],
+    queryFn: () => propertyApi.getAll(),
+  });
+
+  const createAppointment = useMutation({
+    mutationFn: (data: AppointmentFormDataInput) => appointmentApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
+
   const appointments: any[] = data?.data ?? [];
   const tasks: any[] = tasksQuery.data?.data ?? [];
+  const clients: any[] = clientsQuery.data?.data ?? [];
+  const properties: any[] = propertiesQuery.data ?? [];
+
+  const openNewAppointment = (date?: Date | null) => {
+    setFormDefaultDate(date || selectedDate || new Date());
+    setIsFormOpen(true);
+  };
 
   const safeDate = (value: string | undefined | null): Date | null => {
     if (!value) return null;
@@ -199,6 +235,10 @@ export function CalendarPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => openNewAppointment()} className="bg-green-600 hover:bg-green-700">
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva Cita
+          </Button>
           <Select value={viewMode} onValueChange={(v: 'month' | 'list') => setViewMode(v)}>
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -418,6 +458,18 @@ export function CalendarPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Formulario de nueva cita */}
+      <AppointmentForm
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        defaultDate={formDefaultDate}
+        clients={clients}
+        properties={properties}
+        onSubmit={async (data) => {
+          await createAppointment.mutateAsync(data);
+        }}
+      />
     </div>
   );
 }

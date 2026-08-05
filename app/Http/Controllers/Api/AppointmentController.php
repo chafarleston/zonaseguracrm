@@ -71,12 +71,12 @@ class AppointmentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'client_id' => 'required|exists:clients,id',
-            'property_id' => 'nullable|exists:properties,id',
+            'clientId' => 'required|exists:clients,id',
+            'propertyId' => 'nullable|exists:properties,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'startTime' => 'required|date',
+            'endTime' => 'required|date|after:startTime',
             'location' => 'nullable|string|max:255',
             'type' => 'nullable|string|in:visit,meeting,call,follow_up,other',
             'status' => 'nullable|string|in:scheduled,confirmed,completed,cancelled,rescheduled',
@@ -88,7 +88,16 @@ class AppointmentController extends Controller
         }
 
         $appointment = Appointment::create([
-            ...$request->all(),
+            'client_id' => $request->input('clientId'),
+            'property_id' => $request->input('propertyId'),
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'start_time' => $request->input('startTime'),
+            'end_time' => $request->input('endTime'),
+            'location' => $request->input('location'),
+            'type' => $request->input('type', 'visit'),
+            'status' => $request->input('status', 'scheduled'),
+            'notes' => $request->input('notes'),
             'user_id' => $request->user()->id,
         ]);
 
@@ -98,24 +107,36 @@ class AppointmentController extends Controller
     public function update(Request $request, Appointment $appointment): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'client_id' => 'required|exists:clients,id',
-            'property_id' => 'nullable|exists:properties,id',
+            'clientId' => 'required|exists:clients,id',
+            'propertyId' => 'nullable|exists:properties,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'startTime' => 'required|date',
+            'endTime' => 'required|date|after:startTime',
             'location' => 'nullable|string|max:255',
             'type' => 'nullable|string|in:visit,meeting,call,follow_up,other',
             'status' => 'nullable|string|in:scheduled,confirmed,completed,cancelled,rescheduled',
             'notes' => 'nullable|string',
-            'cancellation_reason' => 'nullable|string',
+            'cancellationReason' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Datos inválidos', 'details' => $validator->errors()], 400);
         }
 
-        $appointment->update($request->all());
+        $appointment->update([
+            'client_id' => $request->input('clientId'),
+            'property_id' => $request->input('propertyId'),
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'start_time' => $request->input('startTime'),
+            'end_time' => $request->input('endTime'),
+            'location' => $request->input('location'),
+            'type' => $request->input('type', 'visit'),
+            'status' => $request->input('status', 'scheduled'),
+            'notes' => $request->input('notes'),
+            'cancellation_reason' => $request->input('cancellationReason'),
+        ]);
 
         return response()->json(new AppointmentResource($appointment));
     }
