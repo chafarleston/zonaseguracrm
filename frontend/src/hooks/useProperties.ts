@@ -14,7 +14,7 @@ export const useProperties = (params?: Record<string, string>) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: [PROPERTIES_KEY, params],
+    queryKey: params ? [PROPERTIES_KEY, params] : PROPERTIES_KEY,
     queryFn: () => propertyApi.getAll(params),
   });
 
