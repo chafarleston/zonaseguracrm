@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useProperties } from '@/hooks/useProperties';
 import { ShareDialog } from '@/components/social/ShareDialog';
 import { PropertyForm } from '@/components/property/PropertyForm';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,6 +70,7 @@ export function PropertiesPage() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
 
   const filteredProperties = (properties as Property[]).filter((prop: Property) => {
     const matchesSearch =
@@ -108,9 +110,14 @@ export function PropertiesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de eliminar esta propiedad?')) {
-      await deleteProperty(id);
+  const handleDelete = (id: string) => {
+    setDeletePropertyId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deletePropertyId) {
+      await deleteProperty(deletePropertyId);
+      setDeletePropertyId(null);
     }
   };
 
@@ -333,6 +340,18 @@ export function PropertiesPage() {
           setIsShareOpen(false);
           setShareProperty(null);
         }}
+      />
+
+      {/* Confirmación de eliminación */}
+      <ConfirmDialog
+        open={!!deletePropertyId}
+        onOpenChange={(open) => !open && setDeletePropertyId(null)}
+        title="Eliminar propiedad"
+        description="¿Estás seguro de que deseas eliminar esta propiedad? Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={confirmDelete}
+        variant="destructive"
       />
     </div>
   );

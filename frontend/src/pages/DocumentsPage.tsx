@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -92,6 +93,7 @@ export function DocumentsPage() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [deleteDocId, setDeleteDocId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -203,8 +205,13 @@ export function DocumentsPage() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('¿Estás seguro de eliminar este documento?')) {
-      deleteMutation.mutate(id);
+    setDeleteDocId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteDocId) {
+      deleteMutation.mutate(deleteDocId);
+      setDeleteDocId(null);
     }
   };
 
@@ -448,6 +455,18 @@ export function DocumentsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmación de eliminación */}
+      <ConfirmDialog
+        open={!!deleteDocId}
+        onOpenChange={(open) => !open && setDeleteDocId(null)}
+        title="Eliminar documento"
+        description="¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 }

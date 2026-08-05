@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useClients } from '@/hooks/useClients';
 import { ClientForm } from '@/components/clients/ClientForm';
 import type { Client, ClientFormData } from '@/components/clients/ClientForm';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,6 +77,8 @@ export function ClientsPage() {
   const [sourceFilter, setSourceFilter] = useState('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [deleteClientId, setDeleteClientId] = useState<string | null>(null);
+  const [convertClientId, setConvertClientId] = useState<string | null>(null);
 
   const filteredClients = (clients as Client[]).filter((client: Client) => {
     const matchesSearch =
@@ -109,15 +112,25 @@ export function ClientsPage() {
     setEditingClient(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de eliminar este cliente?')) {
-      await deleteClient(id);
+  const handleDelete = (id: string) => {
+    setDeleteClientId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteClientId) {
+      await deleteClient(deleteClientId);
+      setDeleteClientId(null);
     }
   };
 
-  const handleConvert = async (id: string) => {
-    if (confirm('¿Convertir este cliente?')) {
-      await convertClient(id);
+  const handleConvert = (id: string) => {
+    setConvertClientId(id);
+  };
+
+  const confirmConvert = async () => {
+    if (convertClientId) {
+      await convertClient(convertClientId);
+      setConvertClientId(null);
     }
   };
 
@@ -324,6 +337,29 @@ export function ClientsPage() {
           setEditingClient(null);
         }}
         onSubmit={handleSubmit}
+      />
+
+      {/* Confirmación de eliminación */}
+      <ConfirmDialog
+        open={!!deleteClientId}
+        onOpenChange={(open) => !open && setDeleteClientId(null)}
+        title="Eliminar cliente"
+        description="¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
+
+      {/* Confirmación de conversión */}
+      <ConfirmDialog
+        open={!!convertClientId}
+        onOpenChange={(open) => !open && setConvertClientId(null)}
+        title="Convertir cliente"
+        description="¿Deseas marcar a este cliente como convertido?"
+        confirmLabel="Convertir"
+        cancelLabel="Cancelar"
+        onConfirm={confirmConvert}
       />
     </div>
   );
