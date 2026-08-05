@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { appointmentApi } from '@/services/api';
+import { appointmentApi, taskApi } from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import {
   User,
   Phone,
   Calendar as CalendarIcon,
+  CheckCircle2,
 } from 'lucide-react';
 
 const DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -62,7 +63,13 @@ export function CalendarPage() {
     queryFn: () => appointmentApi.getAll(),
   });
 
+  const tasksQuery = useQuery({
+    queryKey: ['tasks'],
+    queryFn: () => taskApi.getAll(),
+  });
+
   const appointments: any[] = data?.data ?? [];
+  const tasks: any[] = tasksQuery.data?.data ?? [];
 
   const safeDate = (value: string | undefined | null): Date | null => {
     if (!value) return null;
@@ -123,20 +130,32 @@ export function CalendarPage() {
       const date = formatDate(apt.startTime);
       if (!date) return;
       if (!map[date]) map[date] = [];
-      map[date].push(apt);
+      map[date].push({ ...apt, kind: 'appointment' });
+    });
+    tasks.forEach((task) => {
+      const date = formatDate(task.dueDate);
+      if (!date) return;
+      if (!map[date]) map[date] = [];
+      map[date].push({ ...task, kind: 'task' });
     });
     return map;
-  }, [appointments]);
-
-  const selectedDateAppointments = selectedDate
-    ? appointmentsByDate[selectedDate.toISOString().split('T')[0]] || []
-    : [];
+  }, [appointments, tasks]);
 
   const todayAppointments = appointments.filter((apt) => {
     const aptDate = safeDate(apt.startTime);
     const today = new Date();
     return aptDate ? aptDate.toDateString() === today.toDateString() : false;
   });
+
+  const todayTasks = tasks.filter((task) => {
+    const taskDate = safeDate(task.dueDate);
+    const today = new Date();
+    return taskDate ? taskDate.toDateString() === today.toDateString() : false;
+  });
+
+  const selectedDayItems = selectedDate
+    ? (appointmentsByDate[selectedDate.toISOString().split('T')[0]] || [])
+    : [...todayAppointments.map((a) => ({ ...a, kind: 'appointment' })), ...todayTasks.map((t) => ({ ...t, kind: 'task' }))];
 
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
@@ -176,7 +195,7 @@ export function CalendarPage() {
         <div>
           <h2 className="text-2xl font-bold">Calendario</h2>
           <p className="text-muted-foreground">
-            {todayAppointments.length} citas hoy
+            {todayAppointments.length} citas · {todayTasks.length} tareas hoy
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -244,12 +263,16 @@ export function CalendarPage() {
                         {day}
                       </span>
                       <div className="mt-1 space-y-1">
-                        {dayAppointments.slice(0, 2).map((apt) => (
+                        {dayAppointments.slice(0, 2).map((item) => (
                           <div
-                            key={apt.id}
-                            className="text-xs truncate px-1 py-0.5 rounded bg-green-100 text-green-800"
+                            key={`${item.kind}-${item.id}`}
+                            className={`text-xs truncate px-1 py-0.5 rounded ${
+                              item.kind === 'task'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}
                           >
-                            {apt.title}
+                            {item.title}
                           </div>
                         ))}
                         {dayAppointments.length > 2 && (
@@ -313,43 +336,82 @@ export function CalendarPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {(selectedDate ? selectedDateAppointments : todayAppointments).map((apt) => {
-                const TypeIcon = TYPE_ICONS[apt.type] || CalendarIcon;
+              {selectedDayItems.map((item) => {
+                if (item.kind === 'task') {
+                  const priorityLabel: Record<string, string> = {
+                    low: 'Baja',
+                    medium: 'Media',
+                    high: 'Alta',
+                    urgent: 'Urgente',
+                  };
+                  const priorityColor: Record<string, string> = {
+                    low: 'bg-gray-100 text-gray-800',
+                    medium: 'bg-blue-100 text-blue-800',
+                    high: 'bg-orange-100 text-orange-800',
+                    urgent: 'bg-red-100 text-red-800',
+                  };
+                  return (
+                    <div key={`task-${item.id}`} className="p-3 rounded-lg border border-blue-200 bg-blue-50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                        <p className="font-medium text-sm">{item.title}</p>
+                      </div>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        {item.dueDate && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-3 w-3" />
+                            <span>Vence: {formatDate(item.dueDate)}{item.dueTime ? ` ${item.dueTime}` : ''}</span>
+                          </div>
+                        )}
+                        {item.client && (
+                          <div className="flex items-center gap-2">
+                            <User className="h-3 w-3" />
+                            <span>{item.client.name}</span>
+                          </div>
+                        )}
+                      </div>
+                      <Badge className={`mt-2 ${priorityColor[item.priority] || 'bg-gray-100 text-gray-800'}`}>
+                        Tarea · {priorityLabel[item.priority] || item.priority}
+                      </Badge>
+                    </div>
+                  );
+                }
+                const TypeIcon = TYPE_ICONS[item.type] || CalendarIcon;
                 return (
-                  <div key={apt.id} className="p-3 rounded-lg border">
+                  <div key={`apt-${item.id}`} className="p-3 rounded-lg border">
                     <div className="flex items-center gap-2 mb-2">
                       <TypeIcon className="h-4 w-4 text-muted-foreground" />
-                      <p className="font-medium text-sm">{apt.title}</p>
+                      <p className="font-medium text-sm">{item.title}</p>
                     </div>
                     <div className="space-y-1 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <Clock className="h-3 w-3" />
                         <span>
-                          {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
+                          {formatTime(item.startTime)} - {formatTime(item.endTime)}
                         </span>
                       </div>
-                      {apt.client && (
+                      {item.client && (
                         <div className="flex items-center gap-2">
                           <User className="h-3 w-3" />
-                          <span>{apt.client.name}</span>
+                          <span>{item.client.name}</span>
                         </div>
                       )}
-                      {apt.location && (
+                      {item.location && (
                         <div className="flex items-center gap-2">
                           <MapPin className="h-3 w-3" />
-                          <span className="truncate">{apt.location}</span>
+                          <span className="truncate">{item.location}</span>
                         </div>
                       )}
                     </div>
-                    <Badge className={`mt-2 ${TYPE_COLORS[apt.type]}`}>
-                      {TYPE_LABELS[apt.type]}
+                    <Badge className={`mt-2 ${TYPE_COLORS[item.type]}`}>
+                      {TYPE_LABELS[item.type]}
                     </Badge>
                   </div>
                 );
               })}
-              {(selectedDate ? selectedDateAppointments : todayAppointments).length === 0 && (
+              {selectedDayItems.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  No hay citas programadas
+                  No hay citas ni tareas para este día
                 </div>
               )}
             </div>
