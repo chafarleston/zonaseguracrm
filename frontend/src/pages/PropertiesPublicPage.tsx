@@ -418,7 +418,7 @@ export function PropertiesPublicPage() {
                       {property.title}
                     </h4>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {property.description}
+                      {property.description.replace(/\s+/g, ' ').trim()}
                     </p>
 
                     {/* Features */}
