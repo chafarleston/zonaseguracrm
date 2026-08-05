@@ -99,8 +99,12 @@ export function CalendarPage() {
 
   const appointments: any[] = data?.data ?? [];
   const tasks: any[] = tasksQuery.data?.data ?? [];
-  const clients: any[] = clientsQuery.data?.data ?? [];
-  const properties: any[] = propertiesQuery.data ?? [];
+
+  const clientsRaw: any = clientsQuery.data;
+  const clients: any[] = Array.isArray(clientsRaw) ? clientsRaw : (clientsRaw?.data ?? []);
+
+  const propertiesRaw: any = propertiesQuery.data;
+  const properties: any[] = Array.isArray(propertiesRaw) ? propertiesRaw : (propertiesRaw?.data ?? []);
 
   const openNewAppointment = (date?: Date | null) => {
     setFormDefaultDate(date || selectedDate || new Date());
