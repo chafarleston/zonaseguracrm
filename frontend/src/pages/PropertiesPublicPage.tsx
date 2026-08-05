@@ -152,7 +152,7 @@ export function PropertiesPublicPage() {
                 <img
                   src={`${logoUrl}?v=${Date.now()}`}
                   alt={settings?.companyName || 'Logo'}
-                  className="h-12 w-auto object-contain"
+                  className="h-20 w-auto object-contain"
                 />
               ) : (
                 <div className="bg-green-600 p-2 rounded-lg">
@@ -620,7 +620,7 @@ export function PropertiesPublicPage() {
                   <img
                     src={`${logoUrl}?v=${Date.now()}`}
                     alt={settings?.companyName || 'Logo'}
-                    className="h-10 w-auto object-contain"
+                    className="h-16 w-auto object-contain"
                   />
                 ) : (
                   <Building2 className="h-8 w-8 text-green-400" />
