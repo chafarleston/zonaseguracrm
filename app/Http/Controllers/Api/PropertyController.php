@@ -175,6 +175,13 @@ class PropertyController extends Controller
         }
 
         $data = $request->all();
+        \Illuminate\Support\Facades\Log::info('PROPERTY_UPDATE', [
+            'id' => $property->id,
+            'input' => $request->all(),
+            'terrainTotalArea' => $request->input('terrainTotalArea'),
+            'halfBathrooms' => $request->input('halfBathrooms'),
+            'hasGas' => $request->input('hasGas'),
+        ]);
         $data['price'] = (float) $request->input('price', 0);
         $data['area'] = (float) $request->input('area', 0);
         $data['terrain_total_area'] = $request->input('terrainTotalArea') !== null ? (float) $request->input('terrainTotalArea') : null;
