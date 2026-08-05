@@ -39,6 +39,14 @@ php artisan down --retry=60 || true
 # Si GitHub trae cambios en package.json, yarn lo tomará en el paso 5.
 echo -e "${YELLOW}[2/9] Actualizando código desde el repositorio...${NC}"
 if [ -d ".git" ]; then
+    # Evita conflictos con node_modules/vendor que ya no se rastrean en git.
+    # Estos directorios se regeneran con yarn/composer más adelante.
+    echo -e "${YELLOW}  Limpiando cambios locales de node_modules y vendor...${NC}"
+    git checkout -- frontend/node_modules 2>/dev/null || true
+    git checkout -- node_modules 2>/dev/null || true
+    git checkout -- vendor 2>/dev/null || true
+    git clean -fd frontend/node_modules node_modules vendor 2>/dev/null || true
+
     git pull origin "$BRANCH"
 else
     echo "No hay repositorio git. Asegúrate de haber subido los archivos actualizados (FTP/SCP)."
