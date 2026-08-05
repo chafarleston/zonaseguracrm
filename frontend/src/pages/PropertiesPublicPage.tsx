@@ -40,6 +40,8 @@ import {
   Waves,
   Flame,
   Zap,
+  Menu,
+  X,
 } from 'lucide-react';
 
 const PROPERTY_TYPES = [
@@ -65,6 +67,7 @@ export function PropertiesPublicPage() {
   const [priceRange, setPriceRange] = useState('all');
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       return JSON.parse(localStorage.getItem('zonasegura_favorites') || '[]');
@@ -190,14 +193,60 @@ export function PropertiesPublicPage() {
                 <Mail className="h-4 w-4" />
                 Contactar
               </Button>
-              <Link to="/login">
+              <Link to="/login" className="hidden md:inline-flex">
                 <Button className="gap-2 bg-green-600 hover:bg-green-700 text-sm px-3 py-2">
                   <Building2 className="h-4 w-4" />
                   Acceso Agentes
                 </Button>
               </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden text-green-700"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Abrir menú"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
             </div>
           </div>
+
+          {/* Menú móvil */}
+          {isMenuOpen && (
+            <nav className="md:hidden mt-3 border-t border-green-100 pt-3 pb-1 space-y-1">
+              <a
+                href="#propiedades"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 rounded-md text-green-800 font-medium hover:bg-green-50"
+              >
+                Propiedades
+              </a>
+              <a
+                href="#nosotros"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 rounded-md text-green-800 font-medium hover:bg-green-50"
+              >
+                Nosotros
+              </a>
+              <a
+                href="#contacto"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 rounded-md text-green-800 font-medium hover:bg-green-50"
+              >
+                Contacto
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsContactOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 rounded-md text-green-800 font-medium hover:bg-green-50"
+              >
+                Contactar
+              </button>
+            </nav>
+          )}
         </div>
       </header>
 
