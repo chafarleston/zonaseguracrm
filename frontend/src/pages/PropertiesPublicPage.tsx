@@ -651,6 +651,14 @@ export function PropertiesPublicPage() {
               size="lg"
               variant="outline"
               className="border-white text-white hover:bg-white/10"
+              onClick={() => {
+                const phone = settings?.phone || '';
+                if (phone) {
+                  window.location.href = `tel:${phone.replace(/[^\d+]/g, '')}`;
+                } else {
+                  toast.info('No hay un número de teléfono configurado');
+                }
+              }}
             >
               <Phone className="h-5 w-5 mr-2" />
               Llamar Ahora
